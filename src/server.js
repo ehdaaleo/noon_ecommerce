@@ -1,28 +1,33 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
+
 // express use 
 dotenv.config();
 const app = express();
 app.use(express.json());
 //Routes  URL 
+const productRoutes= require("./routes/product.route.js");
 
+app.use("/products",productRoutes);
 
-
+// GET , PUT , POST , DELETE 
 // TEST URL Genral  
 app.get("/",(req, res)=>{
     res.json({
-        message :"aoi its ok"
+        message :"API its ok"
     });
 });
 // Route don't exit 
 app.use ((req, res , next )=>{
-next( 
-    new AppError(
-       ` Route ${req.originUrl}  url wich you try to test it not found `,
-       404
-    )
-)
+const error = new Error(`Route ${req.originalUrl} not found`);
+error.status = 404;
+next(error);
 });
 //  error handling 
-app .use (errorHandler );
+app.use((error, req, res, next) => {
+    res.status(error.status || 500).json({ message: error.message });
+});
 const PORT= process.env.PORT||3000;
 mongoose .connect( process.env.MONGO_URL).then(()=> 
 {
@@ -34,5 +39,6 @@ app.listen (PORT,()=>{
 {
     console.log ("database not connected");
     console.error(error);
+    process.exitCode = 1;
 
 });
