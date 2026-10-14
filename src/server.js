@@ -4,10 +4,15 @@ const mongoose = require("mongoose");
 
 // express use 
 dotenv.config();
+if (!process.env.JWT_SECRET?.trim()) {
+    throw new Error("JWT_SECRET is required. Set it in your .env file before starting the server.");
+}
 const app = express();
 app.use(express.json());
 //Routes  URL 
+const authRoutes=require("./routes/authRoutes.js");
 const productRoutes= require("./routes/product.route.js");
+app.use("/auth",authRoutes);
 
 app.use("/products",productRoutes);
 
